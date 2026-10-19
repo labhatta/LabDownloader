@@ -96,6 +96,18 @@ echo  - LabDownloader !BUILD_VER!.exe       (Portable Version)
 echo  - win-unpacked\LabDownloader.exe      (Unpacked App)
 echo.
 
+:: 7. Commit dan push ke GitHub
+echo.
+set /p "DO_GIT_PUSH=Commit dan push versi baru ke GitHub sekarang? [Y/N, Enter = Y]: "
+if "!DO_GIT_PUSH!"=="" set "DO_GIT_PUSH=Y"
+if /i "!DO_GIT_PUSH!"=="Y" (
+    echo [*] Melakukan git add, commit, dan push ke GitHub...
+    git add .
+    git commit -m "chore(release): build and package version !BUILD_VER!"
+    git push origin main
+    echo [+] Repository GitHub berhasil diperbarui!
+)
+
 set /p "OPEN_DIR=Buka folder dist-package sekarang? [Y/N, Enter = Y]: "
 if "!OPEN_DIR!"=="" set "OPEN_DIR=Y"
 if /i "!OPEN_DIR!"=="Y" (
