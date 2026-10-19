@@ -1,6 +1,7 @@
 import asyncio
 import os
 import threading
+import time
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 import yt_dlp
@@ -145,14 +146,29 @@ def run_ytdlp_download(
     output_dir.mkdir(parents=True, exist_ok=True)
     outtmpl = str(output_dir / "%(title).200B [%(id)s].%(ext)s")
 
-    db.update_job(job_id, {"status": "downloading", "progress": 0.0})
+    initial_updates = {
+        "status": "downloading",
+        "progress": 0.0,
+        "speed": "Starting download...",
+        "eta": "Resolving stream..."
+    }
+    db.update_job(job_id, initial_updates)
+    if loop and loop.is_running():
+        asyncio.run_coroutine_threadsafe(
+            broadcaster.broadcast("job_progress", {"job_id": job_id, **initial_updates}),
+            loop
+        )
+
+    last_broadcast_time = 0.0
 
     def progress_hook(d: Dict[str, Any]):
+        nonlocal last_broadcast_time
         if cancel_event.is_set():
             raise yt_dlp.utils.DownloadCancelled("Download canceled by user.")
 
         status = d.get("status")
         if status == "downloading":
+            now = time.time()
             downloaded = d.get("downloaded_bytes", 0)
             total = d.get("total_bytes") or d.get("total_bytes_estimate") or 0
             speed_val = d.get("speed")
@@ -161,6 +177,11 @@ def run_ytdlp_download(
             pct = 0.0
             if total > 0:
                 pct = round((downloaded / total) * 100.0, 1)
+
+            # Throttle updates to at most 4 times per second unless completed
+            if now - last_broadcast_time < 0.25 and pct < 99.0:
+                return
+            last_broadcast_time = now
 
             speed_str = format_speed(speed_val)
             eta_str = format_eta(eta_val)

@@ -22,6 +22,18 @@ class JobManager:
 
     def start(self, loop: asyncio.AbstractEventLoop):
         self._loop = loop
+
+        # Clean up orphaned jobs left over from previous process shutdown
+        existing_jobs = db.list_jobs(limit=200)
+        for j in existing_jobs:
+            if j["status"] in ("downloading", "processing", "analyzing"):
+                db.update_job(j["id"], {
+                    "status": "failed",
+                    "error_message": "Download interrupted by app shutdown. Click retry to resume."
+                })
+            elif j["status"] == "queued":
+                self._queue.put_nowait(j["id"])
+
         settings = db.get_settings()
         max_concurrent = int(settings.get("max_concurrent", "3"))
 

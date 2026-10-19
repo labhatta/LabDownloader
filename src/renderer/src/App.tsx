@@ -49,7 +49,10 @@ export const App: React.FC = () => {
     checkHealth();
     loadJobs();
 
-    const interval = setInterval(checkHealth, 5000);
+    const interval = setInterval(() => {
+      checkHealth();
+      loadJobs();
+    }, 2500);
     return () => clearInterval(interval);
   }, [checkHealth, loadJobs]);
 
