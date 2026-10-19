@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-cream: #FFF6E8;
+  --bg-card: #FFFFFF;
+  --border-cream: #EEDDC8;
+  --accent-amber: #FFB844;
+  --accent-hover: #F59E0B;
+  --accent-dark: #D97706;
+}
+
+.dark {
+  --bg-cream: #181512;
+  --bg-card: #24201B;
+  --border-cream: #3A332B;
+  --accent-amber: #FFB844;
+  --accent-hover: #F59E0B;
+  --accent-dark: #D97706;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-cream);
+  overflow-x: hidden;
+}
+
+/* Custom modern scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(217, 119, 6, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(217, 119, 6, 0.4);
+}
+
+/* Frameless Window Drag Regions */
+.titlebar-drag {
+  -webkit-app-region: drag;
+}
+
+.titlebar-nodrag {
+  -webkit-app-region: no-drag;
+}

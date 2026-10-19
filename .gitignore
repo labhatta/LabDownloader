@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build artifacts
+dist/
+dist-electron/
+dist-backend/
+dist-package/
+build/
+
+# Python cache & virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+.pytest_cache/
+
+# SQLite & Downloads runtime data
+*.sqlite
+*.sqlite3
+*.db
+downloads/
+output/
+scratch/
+*.log
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Executables & Binaries in root
+*.exe
+*.dll

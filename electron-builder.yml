@@ -1,0 +1,29 @@
+appId: com.labdownloader.app
+productName: LabDownloader
+directories:
+  output: dist-package
+  buildResources: build
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  - services/**/*
+  - package.json
+asarUnpack:
+  - "services/**/*"
+extraResources:
+  - from: dist-backend/lab-engine.exe
+    to: bin/lab-engine.exe
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: LabDownloader
