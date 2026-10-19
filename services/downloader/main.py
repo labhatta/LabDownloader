@@ -14,6 +14,7 @@ from pydantic import BaseModel
 import uvicorn
 import yt_dlp
 
+from services.downloader import __version__
 from services.downloader.config import config
 from services.downloader.database import db
 from services.downloader.inspector import extract_candidates_from_har, probe_url
@@ -33,7 +34,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="LabDownloader Local Engine",
-    version="1.0.0",
+    version=__version__,
     lifespan=lifespan
 )
 
@@ -89,7 +90,7 @@ class SettingsUpdateRequest(BaseModel):
 @app.get("/api/health")
 async def health_check():
     """Unauthenticated health probe for Electron startup verification."""
-    return {"status": "ok", "service": "LabDownloader", "version": "1.0.0"}
+    return {"status": "ok", "service": "LabDownloader", "version": __version__}
 
 @app.get("/api/system/info", dependencies=[Depends(verify_token)])
 async def get_system_info():

@@ -7,6 +7,7 @@ import { DownloadsPage } from './pages/DownloadsPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { downloadService, Job, SystemInfo } from '@api/index';
+import packageInfo from '../../../package.json';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('downloader');
@@ -143,7 +144,7 @@ export const App: React.FC = () => {
 
       <footer className="w-full py-3 px-6 border-t border-[#EEDDC8]/50 dark:border-[#3A332B]/50 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-slate-700 dark:text-slate-300">LabDownloader v1.0.0</span>
+          <span className="font-semibold text-slate-700 dark:text-slate-300">LabDownloader v{packageInfo.version}</span>
           <span>•</span>
           <span>Universal Video, Audio & Stream Downloader</span>
         </div>
