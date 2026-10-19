@@ -19,6 +19,7 @@ class AppConfig:
     FFMPEG_PATH: Optional[str] = shutil.which("ffmpeg")
     FFPROBE_PATH: Optional[str] = shutil.which("ffprobe")
     YTDLP_PATH: Optional[str] = shutil.which("yt-dlp")
+    NODE_PATH: Optional[str] = shutil.which("node")
 
     @classmethod
     def initialize(cls, port: Optional[int] = None, token: Optional[str] = None):

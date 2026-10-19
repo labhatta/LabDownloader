@@ -40,7 +40,7 @@ def format_eta(seconds: Optional[int]) -> str:
 def extract_media_info(url: str) -> Dict[str, Any]:
     """Analyze media URL and return detailed metadata and available formats."""
     safe_url = validate_url(url)
-    ydl_opts = {
+    ydl_opts: Dict[str, Any] = {
         "quiet": True,
         "no_warnings": True,
         "skip_download": True,
@@ -49,6 +49,8 @@ def extract_media_info(url: str) -> Dict[str, Any]:
     }
     if config.FFMPEG_PATH:
         ydl_opts["ffmpeg_location"] = config.FFMPEG_PATH
+    if config.NODE_PATH:
+        ydl_opts["js_runtimes"] = {"node": {"path": config.NODE_PATH}}
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(safe_url, download=False)
@@ -111,8 +113,8 @@ def extract_media_info(url: str) -> Dict[str, Any]:
     # Add quick quality presets
     presets = [
         {"id": "bestvideo+bestaudio/best", "label": "Best Available (Audio + Video)", "ext": "mp4", "is_preset": True},
-        {"id": "bestvideo[height<=1080]+bestaudio/best[height<=1080]", "label": "Full HD 1080p", "ext": "mp4", "is_preset": True},
-        {"id": "bestvideo[height<=720]+bestaudio/best[height<=720]", "label": "HD 720p", "ext": "mp4", "is_preset": True},
+        {"id": "bestvideo[height<=1080]+bestaudio/best[height<=1080]/best", "label": "Full HD 1080p", "ext": "mp4", "is_preset": True},
+        {"id": "bestvideo[height<=720]+bestaudio/best[height<=720]/best", "label": "HD 720p", "ext": "mp4", "is_preset": True},
         {"id": "bestaudio/best", "label": "Best Audio Only (MP3/M4A)", "ext": "mp3", "is_preset": True, "audio_only": True},
     ]
 
@@ -216,23 +218,36 @@ def run_ytdlp_download(
                     loop
                 )
 
+    # Determine optimal format selector
+    if is_audio_only:
+        selected_format = (
+            format_id
+            if (format_id and ("audio" in format_id or "ba" in format_id or "+" in format_id or "/" in format_id))
+            else "bestaudio/best"
+        )
+    elif not format_id or format_id == "best":
+        selected_format = "bestvideo[height<=1080]+bestaudio/bestvideo+bestaudio/best"
+    elif "+" in format_id or "/" in format_id:
+        selected_format = format_id
+    else:
+        # Single format ID specified (e.g. video-only format 137 or 616)
+        # Always pair with best audio so the video doesn't end up silent or fail
+        selected_format = f"{format_id}+bestaudio/best"
+
     ydl_opts: Dict[str, Any] = {
         "outtmpl": outtmpl,
         "quiet": True,
         "no_warnings": True,
         "progress_hooks": [progress_hook],
         "nocheckcertificate": False,
-        "format": format_id or "bestvideo+bestaudio/best",
+        "format": selected_format,
         "overwrites": False,
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["android", "web"]
-            }
-        }
     }
 
     if config.FFMPEG_PATH:
         ydl_opts["ffmpeg_location"] = config.FFMPEG_PATH
+    if config.NODE_PATH:
+        ydl_opts["js_runtimes"] = {"node": {"path": config.NODE_PATH}}
 
     safe_audio_format = preferred_audio_format if preferred_audio_format in ("mp3", "m4a", "flac", "opus", "wav", "aac") else "mp3"
 
