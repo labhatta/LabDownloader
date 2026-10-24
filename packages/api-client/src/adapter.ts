@@ -14,6 +14,14 @@ export interface IDownloadAdapter {
     format_id?: string;
     ext?: string;
   }): Promise<Job>;
+  createBatchJobs(items: Array<{
+    url: string;
+    title?: string;
+    thumbnail?: string | null;
+    source?: string;
+    format_id?: string;
+    ext?: string;
+  }>): Promise<{ jobs: Job[]; errors: Array<{ url: string; error: string }>; total_queued: number }>;
   cancelJob(jobId: string): Promise<{ status: string; job_id: string }>;
   retryJob(jobId: string): Promise<Job>;
   deleteJob(jobId: string): Promise<void>;

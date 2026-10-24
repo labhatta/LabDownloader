@@ -69,6 +69,20 @@ export class WebDownloadAdapter implements IDownloadAdapter {
     });
   }
 
+  async createBatchJobs(items: Array<{
+    url: string;
+    title?: string;
+    thumbnail?: string | null;
+    source?: string;
+    format_id?: string;
+    ext?: string;
+  }>): Promise<{ jobs: Job[]; errors: Array<{ url: string; error: string }>; total_queued: number }> {
+    return this.fetchApi('/api/jobs/batch', {
+      method: 'POST',
+      body: JSON.stringify({ items }),
+    });
+  }
+
   async cancelJob(jobId: string): Promise<{ status: string; job_id: string }> {
     return this.fetchApi(`/api/jobs/${encodeURIComponent(jobId)}/cancel`, {
       method: 'POST',

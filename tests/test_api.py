@@ -47,3 +47,19 @@ def test_probe_security_rejection():
     headers = {"X-Lab-Token": config.AUTH_TOKEN}
     response = client.post("/api/inspector/probe", headers=headers, json={"url": "http://127.0.0.1/admin"})
     assert response.status_code == 400
+
+def test_create_jobs_batch():
+    headers = {"X-Lab-Token": config.AUTH_TOKEN}
+    payload = {
+        "items": [
+            {"url": "https://youtu.be/gl49EOm1p8o", "title": "Day 1 Bedah", "format_id": "best"},
+            {"url": "https://youtu.be/8GavENOqILY", "title": "Day 2 Kardio Pulmo", "format_id": "best"}
+        ]
+    }
+    response = client.post("/api/jobs/batch", headers=headers, json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["total_queued"] == 2
+    assert len(data["jobs"]) == 2
+    assert data["jobs"][0]["title"] == "Day 1 Bedah"
+

@@ -1,6 +1,6 @@
 {
   "name": "labdownloader",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "LabDownloader - Modern, elegant media and document downloader for Windows and Web",
   "main": "dist-electron/main/index.js",
   "private": true,

@@ -289,13 +289,26 @@ def run_ytdlp_download(
             final_path = Path(filename)
             file_size = final_path.stat().st_size if final_path.exists() else 0
 
+            existing_job = db.get_job(job_id) or {}
+            custom_title = existing_job.get("title")
+            real_title = info.get("title")
+            real_thumb = info.get("thumbnail")
+
+            final_title = custom_title
+            if not custom_title or custom_title == "Lab Download":
+                final_title = real_title or "Lab Download"
+            elif real_title and custom_title != real_title and custom_title not in real_title:
+                final_title = f"{custom_title} - {real_title}"
+
             completed_updates = {
                 "status": "completed",
                 "progress": 100.0,
                 "output_path": str(final_path),
                 "file_size": file_size,
                 "speed": "",
-                "eta": ""
+                "eta": "",
+                "title": final_title,
+                "thumbnail": real_thumb or existing_job.get("thumbnail")
             }
             db.update_job(job_id, completed_updates)
 

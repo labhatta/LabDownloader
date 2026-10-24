@@ -74,6 +74,10 @@ class CreateJobRequest(BaseModel):
     format_id: Optional[str] = "best"
     ext: Optional[str] = "mp4"
 
+class BatchCreateJobsRequest(BaseModel):
+    items: List[CreateJobRequest]
+
+
 class ProbeRequest(BaseModel):
     url: str
 
@@ -167,6 +171,30 @@ async def create_job(req: CreateJobRequest):
         raise HTTPException(status_code=400, detail=str(se))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/jobs/batch", dependencies=[Depends(verify_token)])
+async def create_jobs_batch(req: BatchCreateJobsRequest):
+    created_jobs = []
+    errors = []
+    for item in req.items:
+        try:
+            job = await job_manager.enqueue_job(
+                url=item.url,
+                title=item.title or "Lab Download",
+                thumbnail=item.thumbnail,
+                source=item.source or "Generic",
+                format_id=item.format_id or "best",
+                ext=item.ext or "mp4"
+            )
+            created_jobs.append(job)
+        except Exception as e:
+            errors.append({"url": item.url, "error": str(e)})
+    return {
+        "jobs": created_jobs,
+        "errors": errors,
+        "total_queued": len(created_jobs)
+    }
+
 
 @app.get("/api/jobs/{job_id}", dependencies=[Depends(verify_token)])
 async def get_job(job_id: str):
